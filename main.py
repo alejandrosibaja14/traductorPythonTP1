@@ -12,6 +12,12 @@ def mostrarMenu():
     print("9. Salir")
     print("\n==================================\n")
 
+def cargarTokens(parchivo, pseparador, plista):
+    print("Archivo utilizado: ")
+    print("Separador utilizado: ")
+    return plista
+    #Función sin terminar
+
 def main():
     listaTokens=[]
     while True:
@@ -20,6 +26,7 @@ def main():
         if opcion=="1":
             archivo=input("Ingrese el nombre del archivo a usar: ")
             separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =)")
+            listaTokens=cargarTokens(archivo, separador, listaTokens)
         elif opcion=="2":
             print("Pendiente")
         elif opcion=="3":
