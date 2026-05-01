@@ -1,3 +1,4 @@
+#Definición de funciones
 def mostrarMenu():
     print("\nSistema de traducción de código")
     print("\n============== Menú ==============\n")
@@ -12,11 +13,33 @@ def mostrarMenu():
     print("9. Salir")
     print("\n==================================\n")
 
-def cargarTokens(parchivo, pseparador, plista):
-    print("Archivo utilizado:", parchivo)
-    print("Separador utilizado:", pseparador)
-    return plista
-    #Función sin terminar
+def cargarTokens(pnombreArchivo, pseparador, plista):
+    mensajes=[]
+    try:
+        with open(pnombreArchivo, "r") as archivo:
+            for linea in archivo:
+                linea=linea.strip()
+                if linea=="":
+                    continue
+                partes=linea.split(pseparador)
+                if len(partes)!=2:
+                    mensajes.append("Línea no válida: "+linea)
+                    continue
+                palabraOriginal=partes[0].strip()
+                reemplazoPalabra=partes[1].strip()
+                token=(palabraOriginal, reemplazoPalabra)
+                tokenDuplicado=False
+                for i in range(len(plista)):
+                    if plista[i][0]==palabraOriginal:
+                        mensajes.append("El token: "+palabraOriginal+" ha sido sobreescrito.")
+                        plista[i]=token
+                        tokenDuplicado=True
+                        break
+                if not tokenDuplicado:
+                    plista.append(token)
+    except FileNotFoundError:
+        mensajes.append("Error: el archivo solicitado no existe. Vuelva a intentarlo.")
+    return plista, mensajes                
 
 def main():
     listaTokens=[]
@@ -26,7 +49,9 @@ def main():
         if opcion=="1":
             archivo=input("Ingrese el nombre del archivo a usar: ")
             separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =)")
-            listaTokens=cargarTokens(archivo, separador, listaTokens)
+            listaTokens, mensajes=cargarTokens(archivo, separador, listaTokens)
+            for m in mensajes:
+                print(m)
         elif opcion=="2":
             print("Pendiente")
         elif opcion=="3":
