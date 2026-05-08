@@ -131,7 +131,7 @@ def main():
         elif opcion=="4":
             print("Pendiente")
         elif opcion=="5":
-            archivoCodigo=input("Ingrese el archivo de código a analizar: ")
+            archivoCodigo=input("Ingrese el archivo de código a traducir: ")
             lineasCodigo, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
