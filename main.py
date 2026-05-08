@@ -89,6 +89,21 @@ def agregarModificarTokens(pentrada, pseparador, plista):
             retroalimentacionUsuario.append("Token agregado existosamente: "+palabraOriginal)
     return plista, retroalimentacionUsuario
 
+def traducirCodigo(pnombreArchivo, plistaTokens):
+    retroalimentacionUsuario=[]
+    lineasCodigo=[]
+    try:
+        with open(pnombreArchivo, "r") as archivo:
+            for linea in archivo:
+                linea=linea.strip()
+                if linea=="":
+                    continue
+                lineasCodigo.append(linea)
+            retroalimentacionUsuario.append("El archivo fue leído correctamente.")
+    except FileNotFoundError:
+        retroalimentacionUsuario.append("El archivo solicitado no existe.")
+    return lineasCodigo, retroalimentacionUsuario
+
 def main():
     """
     Funcionamiento: Controla la ejecución principal del programa, mostrando el menú de opciones de manera repetitiva.
@@ -116,7 +131,10 @@ def main():
         elif opcion=="4":
             print("Pendiente")
         elif opcion=="5":
-            print("Pendiente")
+            archivoCodigo=input("Ingrese el archivo de código a analizar: ")
+            lineasCodigo, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
+            for mensaje in retroalimentacionUsuario:
+                print(mensaje)
         elif opcion=="6":
             print("Pendiente")
         elif opcion=="7":
