@@ -92,17 +92,24 @@ def agregarModificarTokens(pentrada, pseparador, plista):
 def traducirCodigo(pnombreArchivo, plistaTokens):
     retroalimentacionUsuario=[]
     lineasCodigo=[]
+    tokensEnArchivo=[]
     try:
         with open(pnombreArchivo, "r") as archivo:
             for linea in archivo:
                 linea=linea.strip()
                 if linea=="":
                     continue
+                palabras=linea.split()
+                for palabra in palabras:
+                    for token in plistaTokens:
+                        if palabra==token[0]:
+                            if palabra not in tokensEnArchivo:
+                                tokensEnArchivo.append(palabra)
                 lineasCodigo.append(linea)
             retroalimentacionUsuario.append("El archivo fue leído correctamente.")
     except FileNotFoundError:
         retroalimentacionUsuario.append("El archivo solicitado no existe.")
-    return lineasCodigo, retroalimentacionUsuario
+    return lineasCodigo, tokensEnArchivo, retroalimentacionUsuario
 
 def main():
     """
@@ -132,7 +139,7 @@ def main():
             print("Pendiente")
         elif opcion=="5":
             archivoCodigo=input("Ingrese el archivo de código a traducir: ")
-            lineasCodigo, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
+            lineasCodigo, tokensEnArchivo, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
         elif opcion=="6":
