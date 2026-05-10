@@ -3,6 +3,7 @@
 #Ultima actualización: 06/05/2026
 #Versión de python: 3.14
 #Definición de funciones
+import re
 def mostrarMenu():
     """
     Funcionamiento: De manera repetitiva, muestra el menú al usuario. 
@@ -90,26 +91,39 @@ def agregarModificarTokens(pentrada, pseparador, plista):
     return plista, retroalimentacionUsuario
 
 def traducirCodigo(pnombreArchivo, plistaTokens):
+    """
+    Funcionamiento: Identifica los tokens presentes en un archivo y genera una versión traducida utilizando ER.
+    Entradas: pnombreArchivo: archivo de código a traducir.
+            plistaTokens: lista de tokens con la palabra original y su reemplazo.
+    Salidas: Lista con las líneas originales del código, lista de tokens encontrados en el archivo, lista con el código traducido y 
+    lista de mensajes de retroalimentación.
+    """
     retroalimentacionUsuario=[]
     lineasCodigo=[]
     tokensEnArchivo=[]
+    codigoTraducido=[]
     try:
         with open(pnombreArchivo, "r") as archivo:
             for linea in archivo:
-                linea=linea.strip()
+                linea=linea.rstrip()
                 if linea=="":
-                    continue
+                        continue
+                lineasCodigo.append(linea)
                 palabras=linea.split()
                 for palabra in palabras:
                     for token in plistaTokens:
                         if palabra==token[0]:
                             if palabra not in tokensEnArchivo:
                                 tokensEnArchivo.append(palabra)
-                lineasCodigo.append(linea)
+                lineaTraducida=linea
+                for token in plistaTokens:
+                    patron=r"\b"+re.escape(token[0])+r"\b"
+                    lineaTraducida=re.sub(patron, token[1], lineaTraducida)
+                codigoTraducido.append(lineaTraducida)
             retroalimentacionUsuario.append("El archivo fue leído correctamente.")
     except FileNotFoundError:
         retroalimentacionUsuario.append("El archivo solicitado no existe.")
-    return lineasCodigo, tokensEnArchivo, retroalimentacionUsuario
+    return lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario
 
 def main():
     """
@@ -139,7 +153,7 @@ def main():
             print("Pendiente")
         elif opcion=="5":
             archivoCodigo=input("Ingrese el archivo de código a traducir: ")
-            lineasCodigo, tokensEnArchivo, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
+            lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
         elif opcion=="6":
