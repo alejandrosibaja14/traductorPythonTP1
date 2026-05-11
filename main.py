@@ -57,7 +57,19 @@ def cargarTokens(pnombreArchivo, pseparador, plista):
                     plista.append(token)
     except FileNotFoundError:
         retroalimentacionUsuario.append("Error: el archivo solicitado no existe. Vuelva a intentarlo.")
-    return plista, retroalimentacionUsuario                
+    return plista, retroalimentacionUsuario
+
+def mostrar_tokens_cargados(plistaTokens):
+    print("\n--- TOKENS CARGADOS ---")
+    if len(lista_tokens) == 0:
+        print("No hay tokens cargados en este momento.")
+    else:
+        contador = 0
+        while contador < len(lista_tokens):
+            original = lista_tokens[contador][0]
+            reemplazo = lista_tokens[contador][1]
+            print(original, "->", reemplazo)
+            contador += 1
 
 def agregarModificarTokens(pentrada, pseparador, plista):
     """
