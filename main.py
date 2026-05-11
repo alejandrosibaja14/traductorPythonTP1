@@ -125,6 +125,23 @@ def traducirCodigo(pnombreArchivo, plistaTokens):
         retroalimentacionUsuario.append("El archivo solicitado no existe.")
     return lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario
 
+def guardarTraduccion(pnombreArchivo, pcodigoTraducido):
+    """
+    Funcionamiento: Genera un archivo con el código traducido.
+    Entradas: pnombreArchivo: nombre del archivo a generar.
+            pcodigoTraducido: lista con las líneas del código traducido.
+    Salidas: Mensajes de retroalimentación indicando si el archivo fue generado correctamente o si ocurrió un error.
+    """
+    retroalimentacionUsuario=[]
+    try:
+        with open(pnombreArchivo, "w") as archivo:
+            for linea in pcodigoTraducido:
+                archivo.write(linea+"\n")
+            retroalimentacionUsuario.append("El archivo con el código traducido ha sido generado correctamente.")
+    except:
+        retroalimentacionUsuario.append("No se ha podido generar el archivo con el código traducido. Vuelva a intentarlo.")
+    return retroalimentacionUsuario
+
 def main():
     """
     Funcionamiento: Controla la ejecución principal del programa, mostrando el menú de opciones de manera repetitiva.
@@ -154,6 +171,10 @@ def main():
         elif opcion=="5":
             archivoCodigo=input("Ingrese el archivo de código a traducir: ")
             lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
+            nombreArchivo=input("Ingrese el nombre del archivo traducido: ")
+            mensajes=guardarTraduccion(nombreArchivo, codigoTraducido)
+            for mensaje in mensajes:
+                print(mensaje)
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
         elif opcion=="6":
