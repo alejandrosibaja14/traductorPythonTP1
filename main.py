@@ -154,6 +154,35 @@ def guardarTraduccion(pnombreArchivo, pcodigoTraducido):
         retroalimentacionUsuario.append("No se ha podido generar el archivo con el código traducido. Vuelva a intentarlo.")
     return retroalimentacionUsuario
 
+def generarHTML(pnombreArchivo, plineasCodigo, pcodigoTraducido, ptokensEnArchivo):
+    retroalimentacionUsuario=[]
+    try:
+        with open(pnombreArchivo, "w") as archivo:
+            archivo.write("<html>\n")
+            archivo.write("<body>\n")
+            archivo.write("<h1>Reporte de Traducción</h1>\n")
+            archivo.write("<h2>Tokens encontrados</h2>\n")
+            archivo.write("<ul>\n")
+            for token in ptokensEnArchivo:
+                archivo.write("<li>"+token+"</li>\n")
+            archivo.write("</ul>\n")
+            archivo.write("<h2>Código Original</h2>\n")
+            archivo.write("<pre>\n")
+            for linea in plineasCodigo:
+                archivo.write(linea+"\n")
+            archivo.write("</pre>\n")
+            archivo.write("<h2>Código Traducido</h2>\n")
+            archivo.write("<pre>\n")
+            for linea in pcodigoTraducido:
+                archivo.write(linea+"\n")
+            archivo.write("</pre>\n")
+            archivo.write("</body>\n")
+            archivo.write("</html>\n")
+            retroalimentacionUsuario.append("Reporte HTML generado correctamente.")
+    except:
+        retroalimentacionUsuario.append("No se pudo generar el reporte HTML. Vuelva a intentarlo.")
+    return retroalimentacionUsuario
+
 def main():
     """
     Funcionamiento: Controla la ejecución principal del programa, mostrando el menú de opciones de manera repetitiva.
