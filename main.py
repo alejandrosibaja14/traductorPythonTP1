@@ -33,8 +33,12 @@ def cargarTokens(pnombreArchivo, pseparador, plista):
     Salidas: Lista de tokens actualizada y una lista de mensajes de retroalimentación.
     """
     retroalimentacionUsuario=[]
+    tokensCargados=0
+    if pseparador.strip()=="":
+        retroalimentacionUsuario.append("Debe ingresar un separador válido.")
+        return plista, retroalimentacionUsuario
     try:
-        with open(pnombreArchivo, "r") as archivo:
+        with open(pnombreArchivo, "r", encoding="utf-8") as archivo:
             for linea in archivo:
                 linea=linea.strip()
                 if linea=="":
@@ -45,6 +49,9 @@ def cargarTokens(pnombreArchivo, pseparador, plista):
                     continue
                 palabraOriginal=partes[0].strip()
                 reemplazoPalabra=partes[1].strip()
+                if palabraOriginal=="" or reemplazoPalabra=="":
+                    retroalimentacionUsuario.append("Token inválido: "+linea)
+                    continue
                 token=(palabraOriginal, reemplazoPalabra)
                 tokenDuplicado=False
                 for i in range(len(plista)):
@@ -55,6 +62,10 @@ def cargarTokens(pnombreArchivo, pseparador, plista):
                         break
                 if not tokenDuplicado:
                     plista.append(token)
+                    tokensCargados+=1
+        retroalimentacionUsuario.append("Archivo procesado correctamente.")       
+        if tokensCargados>0:
+            retroalimentacionUsuario.append("Tokens cargados exitosamente.")
     except FileNotFoundError:
         retroalimentacionUsuario.append("Error: el archivo solicitado no existe. Vuelva a intentarlo.")
     return plista, retroalimentacionUsuario
@@ -80,6 +91,9 @@ def agregarModificarTokens(pentrada, pseparador, plista):
     Salidas: Lista de tokens actualizada y una lista de mensajes de retroalimentación.
     """
     retroalimentacionUsuario=[]
+    if pseparador.strip()=="":
+        retroalimentacionUsuario.append("Debe ingresar un separador válido.")
+        return plista, retroalimentacionUsuario
     tokens=pentrada.split(",")
     for t in tokens:
         t=t.strip()
@@ -89,6 +103,9 @@ def agregarModificarTokens(pentrada, pseparador, plista):
             continue
         palabraOriginal=partesToken[0].strip()
         reemplazoPalabra=partesToken[1].strip()
+        if palabraOriginal=="" or reemplazoPalabra=="":
+            retroalimentacionUsuario.append("Token inválido: "+t)
+            continue
         tokenNuevo=(palabraOriginal, reemplazoPalabra)
         tokenDuplicado=False
         for i in range(len(plista)):
@@ -99,7 +116,7 @@ def agregarModificarTokens(pentrada, pseparador, plista):
                 break
         if not tokenDuplicado:
             plista.append(tokenNuevo)
-            retroalimentacionUsuario.append("Token agregado existosamente: "+palabraOriginal)
+            retroalimentacionUsuario.append("Token agregado exitosamente: "+palabraOriginal)
     return plista, retroalimentacionUsuario
 
 def traducirCodigo(pnombreArchivo, plistaTokens):
@@ -115,11 +132,11 @@ def traducirCodigo(pnombreArchivo, plistaTokens):
     tokensEnArchivo=[]
     codigoTraducido=[]
     try:
-        with open(pnombreArchivo, "r") as archivo:
+        with open(pnombreArchivo, "r", encoding="utf-8") as archivo:
             for linea in archivo:
                 linea=linea.rstrip()
                 if linea=="":
-                        continue
+                    continue
                 lineasCodigo.append(linea)
                 palabras=linea.split()
                 for palabra in palabras:
@@ -132,7 +149,10 @@ def traducirCodigo(pnombreArchivo, plistaTokens):
                     patron=r"\b"+re.escape(token[0])+r"\b"
                     lineaTraducida=re.sub(patron, token[1], lineaTraducida)
                 codigoTraducido.append(lineaTraducida)
+        if len(lineasCodigo)>0:
             retroalimentacionUsuario.append("El archivo fue leído correctamente.")
+        else:
+            retroalimentacionUsuario.append("El archivo está vacío.")
     except FileNotFoundError:
         retroalimentacionUsuario.append("El archivo solicitado no existe.")
     return lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario
@@ -146,19 +166,31 @@ def guardarTraduccion(pnombreArchivo, pcodigoTraducido):
     """
     retroalimentacionUsuario=[]
     try:
-        with open(pnombreArchivo, "w") as archivo:
+        with open(pnombreArchivo, "w", encoding="utf-8") as archivo:
             for linea in pcodigoTraducido:
                 archivo.write(linea+"\n")
             retroalimentacionUsuario.append("El archivo con el código traducido ha sido generado correctamente.")
-    except:
+    except Exception:
         retroalimentacionUsuario.append("No se ha podido generar el archivo con el código traducido. Vuelva a intentarlo.")
     return retroalimentacionUsuario
 
 def generarHTML(pnombreArchivo, plineasCodigo, pcodigoTraducido, ptokensEnArchivo):
+    """
+    Funcionamiento: Genera un archivo HTML con el reporte de traducción del código.
+    Entradas: pnombreArchivo: nombre del archivo HTML a generar.
+            plineasCodigo: lista con las líneas originales del código.
+            pcodigoTraducido: lista con las líneas traducidas.
+            ptokensEnArchivo: lista de tokens encontrados en el archivo.
+    Salidas: Lista de mensajes de retroalimentación.
+    """
     retroalimentacionUsuario=[]
     try:
-        with open(pnombreArchivo, "w") as archivo:
+        with open(pnombreArchivo, "w", encoding="utf-8") as archivo:
             archivo.write("<html>\n")
+            archivo.write("<head>\n")
+            archivo.write('<meta charset="UTF-8">\n')
+            archivo.write("<title>Reporte</title>\n")
+            archivo.write("</head>\n")
             archivo.write("<body>\n")
             archivo.write("<h1>Reporte de Traducción</h1>\n")
             archivo.write("<h2>Tokens encontrados</h2>\n")
@@ -179,9 +211,37 @@ def generarHTML(pnombreArchivo, plineasCodigo, pcodigoTraducido, ptokensEnArchiv
             archivo.write("</body>\n")
             archivo.write("</html>\n")
             retroalimentacionUsuario.append("Reporte HTML generado correctamente.")
-    except:
+    except Exception:
         retroalimentacionUsuario.append("No se pudo generar el reporte HTML. Vuelva a intentarlo.")
     return retroalimentacionUsuario
+
+def validarNombreArchivoAux(pmensaje, pextension):
+    """
+    Funcionamiento: Solicita al usuario un nombre de archivo válido y verifica su extensión.
+    Entradas: pmensaje: mensaje que se mostrará al usuario.
+            pextension: extensión esperada del archivo.
+    Salidas: Nombre de archivo válido.
+    """
+    nombreArchivo=input(pmensaje)
+    while nombreArchivo.strip()=="" or not nombreArchivo.endswith(pextension):
+        if nombreArchivo.strip()=="":
+            print("Debe ingresar un nombre de archivo válido.")
+        else:
+            print("El archivo debe tener extensión "+pextension)
+        nombreArchivo=input(pmensaje)
+    return nombreArchivo
+
+def validarSeparadorAux():
+    """
+    Funcionamiento: Solicita al usuario un separador válido.
+    Entradas: NA
+    Salidas: Separador válido.
+    """
+    separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =): ")
+    while separador.strip()=="":
+        print("Debe ingresar un separador válido.")
+        separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =): ")
+    return separador
 
 def main():
     """
@@ -190,43 +250,67 @@ def main():
     Salidas: Resultado según la opción seleccionada por el usuario.
     """
     listaTokens=[]
+    lineasCodigo=[]
+    tokensEnArchivo=[]
+    codigoTraducido=[]
     while True:
         mostrarMenu()
         opcion=input("Seleccione la opción que desee: ")
         if opcion=="1":
-            archivo=input("Ingrese el nombre del archivo a usar: ")
-            separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =): ")
+            print("\n===== CARGAR TOKENS =====\n")
+            print("El archivo debe incluir su extensión correspondiente (.txt).")
+            archivo=validarNombreArchivoAux("Ingrese el nombre del archivo a usar: ", ".txt")
+            separador=validarSeparadorAux()
             listaTokens, retroalimentacionUsuario=cargarTokens(archivo, separador, listaTokens)
             for m in retroalimentacionUsuario:
                 print(m)
         elif opcion=="2":
             print("Pendiente")
         elif opcion=="3":
+            print("\n===== AGREGAR/MODIFICAR TOKENS =====\n")
             entrada=input("Ingrese los tokens que desea agregar: ")
-            separador=input("Ingrese el método de separación usado dentro del archivo (por ejemplo: -> , =): ")
+            separador=validarSeparadorAux()
             listaTokens, retroalimentacionUsuario=agregarModificarTokens(entrada, separador, listaTokens)
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
         elif opcion=="4":
             print("Pendiente")
         elif opcion=="5":
-            archivoCodigo=input("Ingrese el archivo de código a traducir: ")
+            print("\n===== TRADUCIR CÓDIGO =====\n")
+            if len(listaTokens)==0:
+                print("No hay tokens cargados.")
+                continue
+            print("Debe ingresar un archivo de código válido (por ejemplo: codigo.py).")
+            archivoCodigo=validarNombreArchivoAux("Ingrese el archivo de código a traducir: ", ".py")
             lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario=traducirCodigo(archivoCodigo, listaTokens)
-            nombreArchivo=input("Ingrese el nombre del archivo traducido: ")
+            if len(codigoTraducido)==0:
+                for mensaje in retroalimentacionUsuario:
+                    print(mensaje)
+                continue
+            print("El archivo de salida debe incluir extensión (.txt).")
+            nombreArchivo=validarNombreArchivoAux("Ingrese el nombre del archivo traducido: ", ".txt")
             mensajes=guardarTraduccion(nombreArchivo, codigoTraducido)
-            for mensaje in mensajes:
-                print(mensaje)
             for mensaje in retroalimentacionUsuario:
+                print(mensaje)
+            for mensaje in mensajes:
                 print(mensaje)
         elif opcion=="6":
             print("Pendiente")
         elif opcion=="7":
-            print("Pendiente")
+            print("\n===== GENERAR REPORTE HTML =====\n")
+            if len(codigoTraducido)==0:
+                print("Primero debe traducir un archivo.")
+                continue
+            print("El archivo debe incluir extensión .html.")
+            nombreHTML=validarNombreArchivoAux("Ingrese el nombre del archivo HTML a generar: ", ".html")
+            mensajes=generarHTML(nombreHTML, lineasCodigo, codigoTraducido, tokensEnArchivo)
+            for mensaje in mensajes:
+                print(mensaje)
         elif opcion=="8":
             print("Pendiente")
         elif opcion=="9":
             print("Ha salido del sistema.")
             break
         else: print("\nLa opción ingresada no es válida.")
-
+#Inicio del programa principal
 main()
