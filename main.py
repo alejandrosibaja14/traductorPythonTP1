@@ -70,17 +70,24 @@ def cargarTokens(pnombreArchivo, pseparador, plista):
         retroalimentacionUsuario.append("Error: el archivo solicitado no existe. Vuelva a intentarlo.")
     return plista, retroalimentacionUsuario
 
-def mostrar_tokens_cargados(plistaTokens):
-    print("\n--- TOKENS CARGADOS ---")
-    if len(lista_tokens) == 0:
-        print("No hay tokens cargados en este momento.")
+def mostrarTokens(plistaTokens):
+    """
+    Funcionamiento: Recorre la lista de tokens y prepara su visualización.
+    Entradas: plistaTokens: lista actual de tokens.
+    Salidas: Lista de mensajes de retroalimentación para mostrar en pantalla.
+    """
+    retroalimentacionUsuario = []
+    if len(plistaTokens) == 0:
+        retroalimentacionUsuario.append("No hay tokens cargados en este momento.")
     else:
+        retroalimentacionUsuario.append("\n--- TOKENS CARGADOS ---")
         contador = 0
-        while contador < len(lista_tokens):
-            original = lista_tokens[contador][0]
-            reemplazo = lista_tokens[contador][1]
-            print(original, "->", reemplazo)
+        while contador < len(plistaTokens):
+            original = plistaTokens[contador][0]
+            reemplazo = plistaTokens[contador][1]
+            retroalimentacionUsuario.append(original + " -> " + reemplazo)
             contador += 1
+    return retroalimentacionUsuario
 
 def agregarModificarTokens(pentrada, pseparador, plista):
     """
@@ -119,6 +126,31 @@ def agregarModificarTokens(pentrada, pseparador, plista):
             retroalimentacionUsuario.append("Token agregado exitosamente: "+palabraOriginal)
     return plista, retroalimentacionUsuario
 
+def guardarTokens(pnombreArchivo, pseparador, plistaTokens):
+    """
+    Funcionamiento: Guarda la lista de tokens actual en un archivo de texto.
+    Entradas: pnombreArchivo: nombre del archivo destino.
+              pseparador: caracter que separará los tokens.
+              plistaTokens: lista actual de tokens.
+    Salidas: Lista de mensajes indicando el éxito o error de la operación.
+    """
+    retroalimentacionUsuario = []
+    try:
+        with open(pnombreArchivo, "w", encoding="utf-8") as archivo:
+            contador = 0
+            while contador < len(plistaTokens):
+                original = plistaTokens[contador][0]
+                reemplazo = plistaTokens[contador][1]
+                linea = original + pseparador + reemplazo + "\n"
+                archivo.write(linea)
+                contador += 1
+        retroalimentacionUsuario.append("El archivo ha sido guardado exitosamente.")
+    except IOError:
+        retroalimentacionUsuario.append("Error: Ocurrió un problema al intentar guardar el archivo.")
+    return retroalimentacionUsuario
+
+
+
 def traducirCodigo(pnombreArchivo, plistaTokens):
     """
     Funcionamiento: Identifica los tokens presentes en un archivo y genera una versión traducida utilizando ER.
@@ -156,6 +188,29 @@ def traducirCodigo(pnombreArchivo, plistaTokens):
     except FileNotFoundError:
         retroalimentacionUsuario.append("El archivo solicitado no existe.")
     return lineasCodigo, tokensEnArchivo, codigoTraducido, retroalimentacionUsuario
+
+def generarCSV(pnombreArchivo, plistaTokens):
+    """
+    Funcionamiento: Exporta los tokens a un formato separado por comas.
+    Entradas: pnombreArchivo: nombre del archivo CSV destino.
+              plistaTokens: lista actual de tokens.
+    Salidas: Lista de mensajes indicando el éxito o error de la operación.
+    """
+    retroalimentacionUsuario = []
+    try:
+        with open(pnombreArchivo, "w", encoding="utf-8") as archivo:
+            archivo.write("Palabra Original,Reemplazo\n")
+            contador = 0
+            while contador < len(plistaTokens):
+                original = str(plistaTokens[contador][0])
+                reemplazo = str(plistaTokens[contador][1])
+                linea = original + "," + reemplazo + "\n"
+                archivo.write(linea)
+                contador += 1
+        retroalimentacionUsuario.append("Reporte CSV creado con éxito.")
+    except IOError:
+        retroalimentacionUsuario.append("Error: No se pudo generar el documento CSV.")
+    return retroalimentacionUsuario
 
 def guardarTraduccion(pnombreArchivo, pcodigoTraducido):
     """
@@ -213,6 +268,44 @@ def generarHTML(pnombreArchivo, plineasCodigo, pcodigoTraducido, ptokensEnArchiv
             retroalimentacionUsuario.append("Reporte HTML generado correctamente.")
     except Exception:
         retroalimentacionUsuario.append("No se pudo generar el reporte HTML. Vuelva a intentarlo.")
+    return retroalimentacionUsuario
+
+def insertarBitacora(pbitacora, pfecha, paccion, pdetalle):
+    """
+    Funcionamiento: Agrega un nuevo evento a la estructura de la bitácora.
+    Entradas: pbitacora: lista principal de la bitácora.
+              pfecha: fecha del evento.
+              paccion: nombre de la acción realizada.
+              pdetalle: descripción profunda del evento.
+    Salidas: Lista de bitácora actualizada.
+    """
+    nuevoEvento = [pfecha, paccion, pdetalle]
+    pbitacora.append(nuevoEvento)
+    return pbitacora
+
+def filtrarBitacoraPorDia(pbitacora, pdiaBuscado):
+    """
+    Funcionamiento: Busca y extrae los registros que coincidan con un día específico.
+    Entradas: pbitacora: lista principal de la bitácora.
+              pdiabuscado: Dia a buscar en la bitácora.
+    Salidas: Bitácora por dia.
+              
+            
+    """
+    retroalimentacionUsuario = []
+    encontrado = False
+    contador = 0
+    while contador < len(pbitacora):
+        registroActual = pbitacora[contador]
+        fechaRegistro = registroActual[0]
+        if fechaRegistro == pdiaBuscado:
+            accion = registroActual[1]
+            detalle = registroActual[2]
+            retroalimentacionUsuario.append("Acción: " + accion + " | Detalle: " + detalle)
+            encontrado = True
+        contador += 1
+    if not encontrado:
+        retroalimentacionUsuario.append("No se encontraron eventos registrados para esa fecha.")
     return retroalimentacionUsuario
 
 def validarNombreArchivoAux(pmensaje, pextension):
