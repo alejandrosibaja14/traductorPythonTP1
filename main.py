@@ -149,8 +149,6 @@ def guardarTokens(pnombreArchivo, pseparador, plistaTokens):
         retroalimentacionUsuario.append("Error: Ocurrió un problema al intentar guardar el archivo.")
     return retroalimentacionUsuario
 
-
-
 def traducirCodigo(pnombreArchivo, plistaTokens):
     """
     Funcionamiento: Identifica los tokens presentes en un archivo y genera una versión traducida utilizando ER.
@@ -288,9 +286,7 @@ def filtrarBitacoraPorDia(pbitacora, pdiaBuscado):
     Funcionamiento: Busca y extrae los registros que coincidan con un día específico.
     Entradas: pbitacora: lista principal de la bitácora.
               pdiabuscado: Dia a buscar en la bitácora.
-    Salidas: Bitácora por dia.
-              
-            
+    Salidas: Bitácora por dia.    
     """
     retroalimentacionUsuario = []
     encontrado = False
