@@ -304,6 +304,26 @@ def filtrarBitacoraPorDia(pbitacora, pdiaBuscado):
         retroalimentacionUsuario.append("No se encontraron eventos registrados para esa fecha.")
     return retroalimentacionUsuario
 
+def filtrarBitacoraPorPalabra(pbitacora, ppalabraBuscada):
+    """
+    Funcionamiento: Busca una palabra clave dentro de los detalles de todos los eventos.
+    """
+    retroalimentacionUsuario = []
+    encontrado = False
+    contador = 0
+    while contador < len(pbitacora):
+        registroActual = pbitacora[contador]
+        detalleStr = str(registroActual[2])
+        if ppalabraBuscada in detalleStr:
+            fecha = registroActual[0]
+            accion = registroActual[1]
+            retroalimentacionUsuario.append("Fecha: " + fecha + " | Acción: " + accion + " | Detalle: " + detalleStr)
+            encontrado = True
+        contador += 1
+    if not encontrado:
+        retroalimentacionUsuario.append("No se encontraron coincidencias para esa palabra.")
+    return retroalimentacionUsuario
+
 def validarNombreArchivoAux(pmensaje, pextension):
     """
     Funcionamiento: Solicita al usuario un nombre de archivo válido y verifica su extensión.
@@ -342,6 +362,7 @@ def main():
     lineasCodigo=[]
     tokensEnArchivo=[]
     codigoTraducido=[]
+    listaBitacora = []
     while True:
         mostrarMenu()
         opcion=input("Seleccione la opción que desee: ")
@@ -353,8 +374,13 @@ def main():
             listaTokens, retroalimentacionUsuario=cargarTokens(archivo, separador, listaTokens)
             for m in retroalimentacionUsuario:
                 print(m)
+            fechaActual = input("Ingrese la fecha de hoy para la bitácora (ej. 15/05/2026): ")
+            listaBitacora = insertarBitacora(listaBitacora, fechaActual, "Cargar Tokens", "Se intentó cargar el archivo " + archivo)
         elif opcion=="2":
-            print("Pendiente")
+            print("\n===== MOSTRAR TOKENS =====\n")
+            mensajes = mostrarTokens(listaTokens)
+            for mensaje in mensajes:
+                print(mensaje)          
         elif opcion=="3":
             print("\n===== AGREGAR/MODIFICAR TOKENS =====\n")
             entrada=input("Ingrese los tokens que desea agregar: ")
@@ -363,7 +389,15 @@ def main():
             for mensaje in retroalimentacionUsuario:
                 print(mensaje)
         elif opcion=="4":
-            print("Pendiente")
+            print("\n===== GUARDAR TOKENS =====\n")
+            if len(listaTokens) == 0:
+                print("No hay tokens cargados para guardar.")
+                continue
+            nombreArchivo = validarNombreArchivoAux("Ingrese el nombre del archivo a guardar: ", ".txt")
+            separador = validarSeparadorAux()
+            mensajes = guardarTokens(nombreArchivo, separador, listaTokens)
+            for mensaje in mensajes:
+                print(mensaje)
         elif opcion=="5":
             print("\n===== TRADUCIR CÓDIGO =====\n")
             if len(listaTokens)==0:
@@ -383,8 +417,17 @@ def main():
                 print(mensaje)
             for mensaje in mensajes:
                 print(mensaje)
-        elif opcion=="6":
-            print("Pendiente")
+        elif opcion == "6":
+            print("\n===== GENERAR CSV =====\n")
+            if len(listaTokens) == 0:
+                print("No hay tokens cargados para generar el archivo CSV.")
+                continue
+            nombreArchivo = validarNombreArchivoAux("Ingrese el nombre del archivo CSV a generar (ejemplo: reporte.csv): ", ".csv")
+            mensajes = generarCSV(nombreArchivo, listaTokens)
+            for mensaje in mensajes:
+                print(mensaje)
+            fechaActual = input("Ingrese la fecha de hoy para la bitácora: ")
+            listaBitacora = insertarBitacora(listaBitacora, fechaActual, "Generar CSV", "Se generó el archivo " + nombreArchivo)
         elif opcion=="7":
             print("\n===== GENERAR REPORTE HTML =====\n")
             if len(codigoTraducido)==0:
@@ -395,8 +438,23 @@ def main():
             mensajes=generarHTML(nombreHTML, lineasCodigo, codigoTraducido, tokensEnArchivo)
             for mensaje in mensajes:
                 print(mensaje)
-        elif opcion=="8":
-            print("Pendiente")
+        elif opcion == "8":
+            print("\n===== CONSULTAR BITÁCORA =====\n")
+            print("1. Filtrar bitácora por día")
+            print("2. Filtrar bitácora por palabra clave")
+            subOpcion = input("Seleccione el método de búsqueda: ")
+            if subOpcion == "1":
+                diaBuscado = input("Ingrese el día a buscar (ejemplo: 06/05/2026): ")
+                mensajes = filtrarBitacoraPorDia(listaBitacora, diaBuscado)
+                for mensaje in mensajes:
+                    print(mensaje)
+            elif subOpcion == "2":
+                palabraBuscada = input("Ingrese la palabra clave a buscar: ")
+                mensajes = filtrarBitacoraPorPalabra(listaBitacora, palabraBuscada)
+                for mensaje in mensajes:
+                    print(mensaje)   
+            else:
+                print("La opción ingresada no es válida.")
         elif opcion=="9":
             print("Ha salido del sistema.")
             break
